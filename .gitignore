@@ -1,2 +1,4 @@
 venv
 generate_semantic_tags/data/dataset_description.pickle
+*.pkl
+
