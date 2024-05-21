@@ -1,4 +1,6 @@
 venv
 generate_semantic_tags/data/dataset_description.pickle
 *.pkl
-
+chroma_db/
+*.sqlite3
+*.pkl
