@@ -4,3 +4,4 @@ generate_semantic_tags/data/dataset_description.pickle
 chroma_db/
 *.sqlite3
 *.pkl
+*.pyc
