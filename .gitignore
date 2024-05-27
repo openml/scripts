@@ -7,3 +7,4 @@ chroma_db/
 *.pyc
 *.DS_store
 *.ipynb_checkpoints
+*.csv
