@@ -8,3 +8,5 @@ chroma_db/
 *.DS_store
 *.ipynb_checkpoints
 *.csv
+rag_pipeline/data/
+rag_pipeline/data/*
