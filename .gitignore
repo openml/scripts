@@ -5,3 +5,5 @@ chroma_db/
 *.sqlite3
 *.pkl
 *.pyc
+*.DS_store
+*.ipynb_checkpoints
