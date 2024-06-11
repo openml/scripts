@@ -14,6 +14,7 @@ from tqdm import tqdm
 from .metadata_utils import (create_metadata_dataframe,
                              get_all_metadata_from_openml)
 
+from langchain_elasticsearch import ElasticsearchStore
 # from langchain_community.llms import HuggingFaceHub
 
 
