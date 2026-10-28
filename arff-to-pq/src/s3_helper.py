@@ -29,7 +29,3 @@ def file_exists(client: S3Client, bucket_name: str, file_path: str) -> bool:
         if e.response["Error"]["Code"] == "404":
             return False
         raise
-
-def _strtobool(input_: str) -> bool:
-    return {"yes": True, "y": True, "true": True, "no": False, "n": False, "false": False}[
-        input_.lower()]
