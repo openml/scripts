@@ -45,7 +45,8 @@ def find_latest_dataset() -> int:
             else:
                 return int(last_df.did.max())
         last_df = datasets
-    raise RuntimeError("Too many datasets on OpenML. Please update the script!")
+    raise RuntimeError("Too many datasets on OpenML. Please update the script to use a 'latest "
+                       "dataset' endpoint!")
 
 
 def find_latest(client: S3Client) -> typing.Tuple[int, int]:
