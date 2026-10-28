@@ -59,7 +59,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--overwrite",
         action='store_true',
-        help="Delete the old bucket (if it exists), before uploading the new file(s). "
+        help="Delete the old object (if it exists), before uploading the new file(s). "
              "If not set, skip datasets which already have a parquet file."
     )
     parser.add_argument(
@@ -92,13 +92,17 @@ def main():
     for dataset_id in dids:
         file_exists = dataset_has_parquet(dataset_id, s3_client)
         dataset_object = format_parquet_object_name(dataset_id)
-        if file_exists and not args.overwrite:
-            logger.info(f"Parquet file {DATASET_BUCKET}/{dataset_object} already exists.")
-            continue
+        if file_exists:
+            if not args.overwrite:
+                logger.info(f"Parquet file {DATASET_BUCKET}/{dataset_object} already exists.")
+                continue
+            logger.info(f"Deleting {DATASET_BUCKET}/{dataset_object}")
+            s3_client.delete_object(Bucket=DATASET_BUCKET, Key=dataset_object)
 
         logger.info(f"Converting {dataset_id}")
         with tempfile.TemporaryDirectory() as tmp_dir:
             parquet_file = Path(tmp_dir) / f"{dataset_id}.pq"
+
             try:
                 dataset_to_parquet(dataset_id, output=parquet_file)
             except Exception as e:
@@ -108,10 +112,6 @@ def main():
             if args.dry:
                 logger.info("Skipping (removal and) upload in `dry` mode.")
                 continue
-
-            if file_exists and args.overwrite:
-                logger.info(f"Deleting {DATASET_BUCKET}/{dataset_object}")
-                s3_client.delete_object(Bucket=DATASET_BUCKET, Key=dataset_object)
 
             logger.info(f"Uploading {DATASET_BUCKET}/{dataset_object}.")
             s3_client.upload_file(

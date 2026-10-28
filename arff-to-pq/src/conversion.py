@@ -163,10 +163,6 @@ def dataset_to_parquet(dataset_id: int, output: Path, max_cells: int = 1_000_000
         download_qualities=False,
         download_features_meta_data=False,
     )
-    if dataset.parquet_file:
-        logger.info("Parquet found using get_dataset. Skipping the conversion.")
-        shutil.copy(dataset.parquet_file, output)
-        return
     logger.info(f"Converting dataset {dataset_id}.")
     dataframe = arff_to_pandas(Path(dataset.data_file))
     server_feature_names = [f.name for f in dataset.features.values()]
