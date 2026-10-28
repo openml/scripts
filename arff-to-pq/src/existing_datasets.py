@@ -10,7 +10,8 @@ if typing.TYPE_CHECKING:
     from mypy_boto3_s3.client import S3Client
 
 DATASET_BUCKET = "datasets"
-
+OPENML_DATASET_OFFSET = int(os.environ.get("OPENML_DATASET_OFFSET", 45400))
+BATCH_SIZE = 500
 
 def _format_dataset_directory(dataset_id: int) -> str:
     bracket = dataset_id // 10000
@@ -27,8 +28,6 @@ def dataset_has_parquet(dataset_id: int, client: S3Client) -> bool:
     return file_exists(client, DATASET_BUCKET, parquet_object)
 
 def find_latest_dataset() -> int:
-    offset = int(os.environ.get("OPENML_DATASET_OFFSET", 45400))
-    batch_size = 500
     last_df = pd.DataFrame()
     # We could use itertools.count, but creating the possibility for an infinite loop
     # which polls production is something I would like to avoid.
@@ -36,13 +35,13 @@ def find_latest_dataset() -> int:
     # time to implement a "latest dataset(s)" endpoint in the Python API.
     for i in range(500):
         datasets = openml.datasets.list_datasets(
-            data_id=list(range(offset + i * batch_size, offset + (i + 1) * batch_size)),
+            data_id=list(range(OPENML_DATASET_OFFSET + i * BATCH_SIZE, OPENML_DATASET_OFFSET + (i + 1) * BATCH_SIZE)),
             output_format="dataframe",
             status="all",
         )
         if datasets.empty:
             if last_df.empty:
-                raise RuntimeError(f"Did not retrieve *any* active datasets. Is the {offset=} correct?")
+                raise RuntimeError(f"Did not retrieve *any* active datasets. Is the {OPENML_DATASET_OFFSET=} correct?")
             else:
                 return int(last_df.did.max())
         last_df = datasets
