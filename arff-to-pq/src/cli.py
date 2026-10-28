@@ -30,7 +30,7 @@ from dotenv import load_dotenv
 
 from conversion import dataset_to_parquet
 from existing_datasets import find_latest, find_latest_dataset, dataset_has_parquet, \
-    _format_parquet_object_name, DATASET_BUCKET
+    format_parquet_object_name, DATASET_BUCKET
 from s3_helper import create_s3_client
 
 
@@ -91,7 +91,7 @@ def main():
 
     for dataset_id in dids:
         file_exists = dataset_has_parquet(dataset_id, s3_client)
-        dataset_object = _format_parquet_object_name(dataset_id)
+        dataset_object = format_parquet_object_name(dataset_id)
         if file_exists and not args.overwrite:
             logger.info(f"Parquet file {DATASET_BUCKET}/{dataset_object} already exists.")
             continue

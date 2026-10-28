@@ -17,13 +17,13 @@ def _format_dataset_directory(dataset_id: int) -> str:
     return f"{bracket:04d}/{dataset_id:04d}"
 
 
-def _format_parquet_object_name(dataset_id: int) -> str:
+def format_parquet_object_name(dataset_id: int) -> str:
     dataset_path = _format_dataset_directory(dataset_id)
     return f"{dataset_path}/dataset_{dataset_id}.pq"
 
 
 def dataset_has_parquet(dataset_id: int, client: S3Client) -> bool:
-    parquet_object = _format_parquet_object_name(dataset_id)
+    parquet_object = format_parquet_object_name(dataset_id)
     return file_exists(client, DATASET_BUCKET, parquet_object)
 
 def find_latest_dataset() -> int:
