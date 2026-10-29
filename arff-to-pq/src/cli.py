@@ -96,8 +96,6 @@ def main():
             if not args.overwrite:
                 logger.info(f"Parquet file {DATASET_BUCKET}/{dataset_object} already exists.")
                 continue
-            logger.info(f"Deleting {DATASET_BUCKET}/{dataset_object}")
-            s3_client.delete_object(Bucket=DATASET_BUCKET, Key=dataset_object)
 
         logger.info(f"Converting {dataset_id}")
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -112,7 +110,9 @@ def main():
             if args.dry:
                 logger.info("Skipping (removal and) upload in `dry` mode.")
                 continue
-
+            if file_exists:
+                logger.info(f"Deleting {DATASET_BUCKET}/{dataset_object}")
+                s3_client.delete_object(Bucket=DATASET_BUCKET, Key=dataset_object)
             logger.info(f"Uploading {DATASET_BUCKET}/{dataset_object}.")
             s3_client.upload_file(
                 Bucket=DATASET_BUCKET,
