@@ -35,6 +35,8 @@ jobs:
 
       - name: Check out the repo
         uses: actions/checkout@v7
+        with:
+          sparse-checkout: 'arff-to-pq'
 
       - name: Extract metadata (labels) for Docker Hub
         id: meta_dockerhub
@@ -46,7 +48,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v7
         with:
-          context: .
+          context: arff-to-pq
           file: arff-to-pq/docker/Dockerfile
           tags: openml/openml-arff-to-pq:${{ github.event.inputs.docker_tag }}
           labels: ${{ steps.meta_dockerhub.outputs.labels }}
@@ -60,7 +62,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: openml/openml-arff-to-pq
           short-description: "Converting arff images to parquet."
-          readme-filepath: ./docker/README.md
+          readme-filepath: .arff-to-pq/docker/README.md
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
