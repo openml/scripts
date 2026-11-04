@@ -62,7 +62,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: openml/openml-arff-to-pq
           short-description: "Converting arff images to parquet."
-          readme-filepath: .arff-to-pq/docker/README.md
+          readme-filepath: ./arff-to-pq/docker/README.md
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
