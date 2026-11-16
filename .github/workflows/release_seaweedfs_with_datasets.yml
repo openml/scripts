@@ -36,7 +36,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v7
         with:
-          sparse-checkout: 'pre-filled-object-storage'
+          sparse-checkout: 'object-storage-pre-filled'
 
       - name: Extract metadata (labels) for Docker Hub
         id: meta_dockerhub
@@ -48,8 +48,8 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v7
         with:
-          context: pre-filled-object-storage
-          file: pre-filled-object-storage/docker/Dockerfile
+          context: object-storage-pre-filled
+          file: object-storage-pre-filled/docker/Dockerfile
           tags: openml/seaweedfs-with-datasets:${{ github.event.inputs.docker_tag }}
           labels: ${{ steps.meta_dockerhub.outputs.labels }}
           platforms: linux/amd64,linux/arm64
@@ -62,7 +62,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: openml/seaweedfs-with-datasets
           short-description: "A SeaweedFS object storage pre-filled with OpenML datasets, used for development and tests."
-          readme-filepath: ./pre-filled-object-storage/docker/README.md
+          readme-filepath: ./object-storage-pre-filled/docker/README.md
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
