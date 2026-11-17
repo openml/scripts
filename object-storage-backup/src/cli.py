@@ -9,14 +9,16 @@ from s3_helper import create_s3_client
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--bucket",
+        "-b", "--bucket",
         type=str,
-        required=True
+        required=True,
+        help = "The S3 bucket"
     )
     parser.add_argument(
         "-o", "--output",
         type=Path,
         required=True,
+        help="Output directory (without the bucket name)"
     )
     return parser.parse_args()
 
@@ -55,7 +57,8 @@ def main():
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             logger.debug(f"Downloading {s3_key} to {output_path}")
-            #s3_client.download_file(bucket, s3_key, output_path)
+            # s3_client.download_file(bucket, s3_key, output_path) does not work for MinIO, throwing
+            # a KeyError: 'ContentLength'. So manually getting and writing the objects
             response = s3_client.get_object(Bucket=bucket, Key=s3_key)
             with open(output_path, "wb") as f:
                 for chunk in response["Body"].iter_chunks(chunk_size=1024 * 1024):
