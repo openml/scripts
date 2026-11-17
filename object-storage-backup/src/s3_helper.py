@@ -1,3 +1,4 @@
+import json
 import os
 import typing
 from functools import partial
@@ -5,6 +6,7 @@ from urllib.parse import urlparse, urlunparse
 
 import urllib3
 from botocore.config import Config
+from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 import boto3
 from loguru import logger
@@ -48,3 +50,44 @@ def create_s3_client() -> "S3Client":
         client.meta.events.register("before-sign.s3", partial(strip_subpath_before_sign, subpath=subpath))
         client.meta.events.register("before-send.s3", partial(restore_subpath_before_send, subpath=subpath))
     return client
+
+def file_exists(client: "S3Client", bucket_name: str, file_path: str) -> bool:
+    try:
+        client.head_object(Bucket=bucket_name, Key=file_path)
+        return True
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "404":
+            return False
+        raise
+
+def create_public_bucket_if_not_exists(client: "S3Client", bucket_name: str):
+    try:
+        client.head_bucket(Bucket=bucket_name)
+        logger.info(f"Bucket {bucket_name} already exists")
+        return
+    except ClientError as e:
+        if e.response["Error"]["Code"] != "404":
+            raise
+    client.create_bucket(Bucket=bucket_name)
+    _make_bucket_public(client, bucket_name)
+    logger.info(f"Created bucket {bucket_name}")
+
+def _make_bucket_public(client: "S3Client", bucket_name: str):
+    public_policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{bucket_name}/*"],
+            }
+        ],
+    }
+
+    client.put_bucket_policy(
+        Bucket=bucket_name,
+        Policy=json.dumps(public_policy),
+    )
+    logger.info(f"Made bucket {bucket_name} public")
