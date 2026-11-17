@@ -1,0 +1,25 @@
+[project]
+name = "openml-object-storage-backup"
+version = "0.0.1"
+authors = [
+  { name="Jos van der Velde" },
+]
+description = "Writing files from our object-storage to disk."
+readme = "README.md"
+requires-python = ">=3.13"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "boto3==1.44.3",
+    "boto3-stubs~=1.44.3",
+    "loguru==0.8.0",
+    "python-dotenv==1.2.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "boto3-stubs[s3]==1.44.3"
+]
