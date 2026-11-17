@@ -27,7 +27,7 @@ def parse_args() -> argparse.Namespace:
              "/my/path/[bucket] will be uploaded."
     )
     parser.add_argument(
-        "--n_threads",
+        "--n-threads",
         type=int,
         default=1,
     )
