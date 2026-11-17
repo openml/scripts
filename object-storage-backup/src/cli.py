@@ -1,6 +1,9 @@
 import argparse
+import time
+from asyncio import IncompleteReadError
 from pathlib import Path
 
+from botocore.exceptions import ReadTimeoutError
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -60,10 +63,22 @@ def main():
             # s3_client.download_file(bucket, s3_key, output_path) does not work for MinIO, throwing
             # a KeyError: 'ContentLength'. So manually getting and writing the objects
             response = s3_client.get_object(Bucket=bucket, Key=s3_key)
-            with open(output_path, "wb") as f:
-                for chunk in response["Body"].iter_chunks(chunk_size=1024 * 1024):
-                    f.write(chunk)
-
+            with open(output_path, "wb") as output_file:
+                attempt = 0
+                try:
+                    with response["Body"] as input_stream:
+                        while True:
+                            chunk = input_stream.read(8 * 1024 * 1024)
+                            if chunk:
+                                output_file.write(chunk)
+                            else:
+                                break
+                except (IncompleteReadError, ReadTimeoutError) as e:
+                    attempt += 1
+                    if attempt > 3:
+                        raise RuntimeError(f"Failed to download {s3_key} to {output_path}") from e
+                    logger.warning(f"Exception while downloading {s3_key} to {output_path}: {e}")
+                    time.sleep(2 ** attempt)
             download_count += 1
             if download_count % 100 == 0:
                 logger.info(f"Downloaded {download_count} files... Last file {output_path}")
