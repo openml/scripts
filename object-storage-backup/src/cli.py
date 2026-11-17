@@ -23,6 +23,10 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Output directory (without the bucket name)"
     )
+    parser.add_argument(
+        "--ignore-existing-files",
+        action="store_true"
+    )
     return parser.parse_args()
 
 
@@ -33,7 +37,8 @@ def main():
 
     bucket = args.bucket
     output_dir = args.output / bucket
-    logger.info(f"From {bucket} to {output_dir}")
+    ignore_existing = args.ignore_existing_files
+    logger.info(f"From {bucket} to {output_dir}.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     if not output_dir.is_dir() and next(output_dir.iterdir(), None) is None:
@@ -58,6 +63,9 @@ def main():
 
             output_path = output_dir / s3_key
             output_path.parent.mkdir(parents=True, exist_ok=True)
+            if output_path.exists() and ignore_existing:
+                logger.debug(f"Ignoring existing file {output_path}")
+                continue
 
             logger.debug(f"Downloading {s3_key} to {output_path}")
             # s3_client.download_file(bucket, s3_key, output_path) does not work for MinIO, throwing
